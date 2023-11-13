@@ -48,30 +48,41 @@
     GITLAB_ROOT_PASSWORD: "{{ gitlab_admin_password }}"
   notify:
     - setup_api_token
+  ignore_errors: true
 
 # !!! self-signed certificate
-# copy certificate and key from 
-#   /etc/pki/tls/certs/git.source.example.com.pem
-#   /etc/pki/tls/private/git.source.example.com.key
-# to 
-#   /etc/gitlab/ssl/
-# or maybe change this configuration
+# change this configuration
 #   /etc/gitlab/gitlab.rb
 #   nginx['ssl_certificate'] = "/etc/gitlab/ssl/#{node['fqdn']}.crt"
 #   nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/#{node['fqdn']}.key"
+# to
+#   nginx['ssl_certificate'] = "/etc/pki/tls/certs/git.source.example.com.pem"
+#   nginx['ssl_certificate_key'] = "/etc/pki/tls/private/git.source.example.com.key"
 
+- name: back up original gitlab config file
+  ansible.builtin.copy:
+    src: /etc/gitlab/gitlab.rb
+    dest: /etc/gitlab/gitlab.rb-orig
+    remote_src: true
+
+- name: push new gitlab config file
+  ansible.builtin.copy:
+    src: gitlab.rb
+    dest: /etc/gitlab/gitlab.rb
+
+# !!! not done?
+# https://github.com/geerlingguy/ansible-role-gitlab/blob/master/tasks/main.yml#L49C1-L56C21
+# Running "gitlab-ctl reconfigure" may be required.
+# Start and configure GitLab. Sometimes the first run fails, but after that,
+# restarts fix problems, so ignore failures on this run.
+- name: Reconfigure GitLab (first run).
+  command:
+    cmd: gitlab-ctl reconfigure
+    #creates=/var/opt/gitlab/bootstrapped
+  #failed_when: false
 
 # !!! done? 
 # try logging in with 
 #   url: "https://{{ inventory_hostname }}"
 #   user: root
 #   password: "{{ gitlab_admin_password }}"
-# https://github.com/geerlingguy/ansible-role-gitlab/blob/master/tasks/main.yml#L49C1-L56C21
-# Running "gitlab-ctl reconfigure" may be required.
-# Start and configure GitLab. Sometimes the first run fails, but after that,
-# restarts fix problems, so ignore failures on this run.
-- name: Reconfigure GitLab (first run).
-  command: >
-    gitlab-ctl reconfigure
-    creates=/var/opt/gitlab/bootstrapped
-  failed_when: false
