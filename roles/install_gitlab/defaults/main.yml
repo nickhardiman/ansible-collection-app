@@ -1,0 +1,3 @@
+---
+# defaults file
+gitlab_admin_password: 'Password;1'

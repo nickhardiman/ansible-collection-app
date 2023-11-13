@@ -1,0 +1,52 @@
+---
+# tasks file
+# A simpler version of Josh Swanson's far superior work.
+# https://www.redhat.com/en/blog/installing-gitlab-ce-rhel-9
+---
+- name: install prerequisites
+  ansible.builtin.yum:
+    name:
+      - yum-utils
+      - policycoreutils
+      - openssh-server
+      - openssh-clients
+      - postfix
+  register: packages_installed
+
+- name: start/enable services
+  ansible.builtin.systemd:
+    name: "{{ service }}"
+    enabled: yes
+    state: started
+  loop_control:
+    loop_var: service
+  loop:
+    - sshd
+    - postfix
+  when:
+    - packages_installed.changed
+
+- name: push gitlab repo file
+  ansible.builtin.copy:
+    src: gitlab.repo
+    dest: "/etc/yum.repos.d/gitlab_gitlab-ce.repo"
+    owner: root
+    group: root
+    mode: '0644'
+  register: repo_file_pushed
+
+- name: clear yum cache
+  ansible.builtin.shell:
+    cmd: yum clean all
+  when:
+    - repo_file_pushed.changed
+
+- name: install gitlab
+  ansible.builtin.yum:
+    name: gitlab-ce
+  environment:
+    EXTERNAL_URL: "https://{{ inventory_hostname }}"
+    GITLAB_ROOT_PASSWORD: "{{ gitlab_admin_password }}"
+  notify:
+    - setup_api_token
+
