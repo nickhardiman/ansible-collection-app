@@ -1,0 +1,7 @@
+= nick.app.install_gitlab
+
+
+My simplified version of the far superior 
+https://www.redhat.com/en/blog/installing-gitlab-ce-rhel-9
+by Josh Swanson.
+
