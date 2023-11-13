@@ -82,7 +82,8 @@
   #failed_when: false
 
 # !!! done? 
-# try logging in with 
+# wait 5 minutes
+# log in with 
 #   url: "https://{{ inventory_hostname }}"
 #   user: root
 #   password: "{{ gitlab_admin_password }}"
