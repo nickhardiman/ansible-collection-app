@@ -1,0 +1,22 @@
+---
+# defaults file
+
+# download 
+# from
+# these values can be found here. 
+# https://prometheus.io/download/#prometheus
+install_version: "2.48.0"
+archive_dir: "prometheus-{{ install_version }}.linux-amd64"
+install_file: "{{ archive_dir }}.tar.gz"
+install_file_source: "https://github.com/prometheus/prometheus/releases/download/{{ install_version  }}/{{ install_file }}"
+sha256_checksum: "5871ca9e01ae35bb7ab7a129a845a7a80f0e1453f00f776ac564dd41ff4d754e"
+# to
+download_dir: /var/tmp
+prometheus_config_dir: /etc/prometheus
+prometheus_db_dir: /var/lib/prometheus
+prometheus_binary_dir: /usr/local/bin
+
+prometheus_selinux_packages
+
+console_libraries
+consoles
