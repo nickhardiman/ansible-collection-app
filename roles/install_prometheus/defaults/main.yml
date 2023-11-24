@@ -16,7 +16,9 @@ prometheus_config_dir: /etc/prometheus
 prometheus_db_dir: /var/lib/prometheus
 prometheus_binary_dir: /usr/local/bin
 
-prometheus_selinux_packages
-
+prometheus_selinux_packages:
+  - python3-libselinux
+  - python3-policycoreutils
+  
 console_libraries
 consoles
