@@ -92,7 +92,7 @@
 
 
 - name: create systemd service unit
-  template:
+  ansible.builtin.template:
     src: prometheus.service.j2
     dest: /etc/systemd/system/prometheus.service
     owner: root
@@ -102,7 +102,7 @@
     - restart prometheus
 
 - name: Install SELinux dependencies
-  package:
+  ansible.builtin.package:
     name: "{{ item }}"
     state: present
   with_items: "{{ prometheus_selinux_packages }}"
@@ -110,16 +110,10 @@
   until: _install_packages is succeeded
   retries: 5
   delay: 2
-  when:
-    - ansible_version.full is version('2.4', '>=')
-    - ansible_selinux.status == "enabled"
 
 - name: Allow prometheus to bind to port in SELinux
-  seport:
+  community.general.seport:
     ports: "{{ prometheus_web_listen_address.split(':')[1] }}"
     proto: tcp
     setype: http_port_t
     state: present
-  when:
-    - ansible_version.full is version('2.4', '>=')
-    - ansible_selinux.status == "enabled"
