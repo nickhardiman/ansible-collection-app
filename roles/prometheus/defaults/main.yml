@@ -8,7 +8,7 @@
 install_version: "2.48.0"
 archive_dir: "prometheus-{{ install_version }}.linux-amd64"
 install_file: "{{ archive_dir }}.tar.gz"
-install_file_source: "https://github.com/prometheus/prometheus/releases/download/{{ install_version  }}/{{ install_file }}"
+install_file_source: "https://github.com/prometheus/prometheus/releases/download/v{{ install_version  }}/{{ install_file }}"
 sha256_checksum: "5871ca9e01ae35bb7ab7a129a845a7a80f0e1453f00f776ac564dd41ff4d754e"
 # to
 download_dir: /var/tmp

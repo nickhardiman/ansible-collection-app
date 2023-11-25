@@ -71,6 +71,7 @@
   retries: 5
   delay: 2
 
+# https://docs.ansible.com/ansible/latest/collections/community/general/seport_module.html
 - name: Allow prometheus to bind to port in SELinux
   community.general.seport:
     ports: "{{ prometheus_web_listen_address.split(':')[1] }}"

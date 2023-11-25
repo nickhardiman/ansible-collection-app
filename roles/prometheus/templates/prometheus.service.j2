@@ -1,4 +1,5 @@
 {{ ansible_managed | comment }}
+# https://janakiev.com/blog/prometheus-setup-systemd/
 
 [Unit]
 Description=Prometheus
@@ -8,18 +9,16 @@ After=local-fs.target
 
 [Service]
 Type=simple
-# https://pkg.go.dev/runtime#GOMAXPROCS
-Environment="GOMAXPROCS={{ ansible_processor_vcpus|default(ansible_processor_count) }}"
 User=prometheus
 Group=prometheus
 ExecReload=/bin/kill -HUP $MAINPID
-ExecStart={{ prometheus_binary_dir }}/prometheus \
-  --config.file={{ prometheus_config_dir }}/prometheus.yml \
-  --storage.tsdb.path={{ prometheus_db_dir }} \
-  --storage.tsdb.retention.time=30d{% else %}
-  --web.config.file={{ prometheus_config_dir }}/web.yml \
-  --web.console.libraries={{ prometheus_config_dir }}/console_libraries \
-  --web.console.templates={{ prometheus_config_dir }}/consoles \
+ExecStart={{ prometheus_binary_dir }}/prometheus  \
+  --config.file={{ prometheus_config_dir }}/prometheus.yml  \
+  --storage.tsdb.path={{ prometheus_db_dir }}  \
+  --storage.tsdb.retention.time=30d       \
+  --web.config.file={{ prometheus_config_dir }}/web.yml  \
+  --web.console.libraries={{ prometheus_config_dir }}/console_libraries  \
+  --web.console.templates={{ prometheus_config_dir }}/consoles  \
   --web.listen-address={{ prometheus_web_listen_address }}
 
 {% if http_proxy is defined %}

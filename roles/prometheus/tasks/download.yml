@@ -8,7 +8,7 @@
 # https://prometheus.io/docs/prometheus/latest/getting_started/#downloading-and-running-prometheus
 
 
-- name: Download prometheus binary to local folder
+- name: "Download prometheus from {{ install_file_source }} to {{ download_dir }}/{{ install_file }}"
   ansible.builtin.get_url:
     url: "{{ install_file_source }}"
     dest: "{{ download_dir }}/{{ install_file }}"
@@ -17,16 +17,14 @@
   until: _download_archive is succeeded
   retries: 5
   delay: 2
-  # run_once: true # <-- this cannot be set due to multi-arch support
-  delegate_to: localhost
   check_mode: false
 
 - name: Unpack prometheus binaries
   ansible.builtin.unarchive:
     src: "{{ download_dir }}/{{ install_file }}"
+    remote_src: true
     dest: "{{ download_dir }}"
     creates: "{{ download_dir }}/{{ archive_dir }}/prometheus"
-  delegate_to: localhost
   check_mode: false
 
 - name: Propagate official prometheus and promtool binaries
