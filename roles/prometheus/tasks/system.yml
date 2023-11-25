@@ -20,11 +20,11 @@
     shell: "/usr/sbin/nologin"
     group: prometheus
     createhome: false
-    home: "{{ prometheus_db_dir }}"
+    home: "{{ prometheus_data_dir }}"
 
 - name: Create prometheus data directory
   ansible.builtin.file:
-    path: "{{ prometheus_db_dir }}"
+    path: "{{ prometheus_data_dir }}"
     state: directory
     owner: prometheus
     group: prometheus

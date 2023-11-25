@@ -1,0 +1,112 @@
+---
+# tasks file
+
+# A simpler version of
+# https://github.com/cloudalchemy/ansible-prometheus/blob/master/tasks/install.yml
+
+# A fancier version of 
+# https://prometheus.io/docs/prometheus/latest/getting_started/#downloading-and-running-prometheus
+
+
+- name: "Download prometheus from {{ install_file_source }} to {{ download_dir }}/{{ install_file }}"
+  ansible.builtin.get_url:
+    url: "{{ install_file_source }}"
+    dest: "{{ download_dir }}/{{ install_file }}"
+    checksum: "sha256:{{ sha256_checksum }}"
+  register: _download_archive
+  until: _download_archive is succeeded
+  retries: 5
+  delay: 2
+  check_mode: false
+
+
+- name: Unpack prometheus installer archive
+  ansible.builtin.unarchive:
+    src: "{{ download_dir }}/{{ install_file }}"
+    remote_src: true
+    dest: "{{ download_dir }}"
+    creates: "{{ download_dir }}/{{ archive_dir }}/prometheus"
+  check_mode: false
+
+
+- name: Copy executables
+  ansible.builtin.copy:
+    src: "{{ download_dir }}/{{ archive_dir }}/{{ item }}"
+    dest: "{{ prometheus_exec_dir }}/{{ item }}"
+    mode: "0755"
+    owner: root
+    group: root
+  loop:
+    - prometheus
+    - promtool
+  notify:
+    - restart prometheus
+
+- name: Copy console templates
+  ansible.builtin.copy:
+    src: "{{ download_dir }}/{{ archive_dir }}/{{ item }}/"
+    dest: "{{ prometheus_config_dir }}/{{ item }}/"
+    mode: "0644"
+    owner: root
+    group: root
+  loop:
+    - console_libraries
+    - consoles
+  notify:
+    - restart prometheus
+
+- name: Re-use host's X.509 certificate and key
+  ansible.builtin.copy:
+    src: "/etc/pki/tls/certs/{{ cert_file }}"
+    remote_src: true
+    dest: "{{ prometheus_config_dir }}/{{ cert_file }}"
+    mode: "0644"
+    owner: root
+    group: prometheus
+- name: Re-use host's X.509 certificate and key
+  ansible.builtin.copy:
+    src: "/etc/pki/tls/private/{{ key_file }}"
+    remote_src: true
+    dest: "{{ prometheus_config_dir }}/{{ key_file }}"
+    mode: "0640"
+    owner: root
+    group: prometheus
+
+
+# prometheus.yml
+# https://prometheus.io/docs/prometheus/latest/configuration/configuration/
+# https://github.com/prometheus/prometheus/blob/release-2.48/documentation/examples/prometheus.yml
+# https://github.com/prometheus/prometheus/blob/release-2.48/config/testdata/conf.good.yml
+# web.yml
+# https://prometheus.io/docs/prometheus/latest/configuration/https/
+# https://github.com/prometheus/prometheus/blob/release-2.48/documentation/examples/web-config.yml
+- name: Copy configuration
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ prometheus_config_dir }}/{{ item }}"
+    mode: "0644"
+    owner: root
+    group: prometheus
+  loop:
+    - prometheus.yml
+    - web.yml
+  notify:
+    - restart prometheus
+
+
+# systemd
+- name: "Start the daemon"
+  ansible.builtin.systemd:
+    name: prometheus
+    state: started
+    enabled: yes
+
+
+# disabled while testing
+# - name: Clean up
+#   ansible.builtin.file:
+#     path: "{{ item }}"
+#     state: absent
+#   loop:
+#   - "{{ download_dir }}/{{ archive_dir }}"
+#   - "{{ download_dir }}/{{ install_file }}"
