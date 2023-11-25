@@ -20,4 +20,5 @@ prometheus_binary_dir: /usr/local/bin
 prometheus_selinux_packages:
   - python3-libselinux
   - python3-policycoreutils
-prometheus_web_listen_address: "0.0.0.0:9090"
+# port 9090 is used by cockpit
+prometheus_web_listen_address: "0.0.0.0:9091"
