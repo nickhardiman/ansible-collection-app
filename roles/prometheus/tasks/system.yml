@@ -42,54 +42,14 @@
     - "{{ prometheus_config_dir }}/rules"
     - "{{ prometheus_config_dir }}/file_sd"
 
-- block:
-    - name: Download prometheus binary to local folder
-      ansible.builtin.get_url:
-        url: "{{ install_file_source }}"
-        dest: "{{ download_dir }}/{{ install_file }}"
-        checksum: "sha256:{{ sha256_checksum }}"
-      register: _download_archive
-      until: _download_archive is succeeded
-      retries: 5
-      delay: 2
-      # run_once: true # <-- this cannot be set due to multi-arch support
-      delegate_to: localhost
-      check_mode: false
-
-    - name: Unpack prometheus binaries
-      ansible.builtin.unarchive:
-        src: "{{ download_dir }}/{{ install_file }}"
-        dest: "{{ download_dir }}"
-        creates: "{{ download_dir }}/{{ archive_dir }}/prometheus"
-      delegate_to: localhost
-      check_mode: false
-
-    - name: Propagate official prometheus and promtool binaries
-      ansible.builtin.copy:
-        src: "{{ download_dir }}/{{ archive_dir }}/{{ item }}"
-        dest: "{{ prometheus_binary_dir }}/{{ item }}"
-        mode: "0755"
-        owner: root
-        group: root
-      with_items:
-        - prometheus
-        - promtool
-      notify:
-        - restart prometheus
-
-    - name: Propagate official console templates
-      ansible.builtin.copy:
-        src: "{{ download_dir }}/{{ archive_dir }}/{{ item }}/"
-        dest: "{{ prometheus_config_dir }}/{{ item }}/"
-        mode: "0644"
-        owner: root
-        group: root
-      with_items:
-        - console_libraries
-        - consoles
-      notify:
-        - restart prometheus
-
+# Open firewall port 9091 for prometheus
+# Not the usual 9090, that's used by cockpit
+- name: permit service traffic
+  ansible.posix.firewalld:
+    port: 9091/tcp
+    immediate: yes
+    permanent: yes
+    state: enabled
 
 - name: create systemd service unit
   ansible.builtin.template:
