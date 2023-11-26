@@ -14,14 +14,13 @@
     shell: "/usr/sbin/nologin"
     group: node_exporter
     createhome: false
-    home: "{{ node_exporter_data_dir }}"
+    # home: "{{ node_exporter_data_dir }}"
 
 
-# Open firewall port 9091 for prometheus
-# Not the usual 9090, that's used by cockpit
-- name: permit service traffic
+# Open firewall port 9100 for node_exporter
+- name: Permit service traffic
   ansible.posix.firewalld:
-    port: 9091/tcp
+    port: 9100/tcp
     immediate: yes
     permanent: yes
     state: enabled
@@ -29,32 +28,23 @@
 # systemd
 - name: Add a new systemd service unit
   ansible.builtin.template:
-    src: prometheus.service.j2
-    dest: /etc/systemd/system/prometheus.service
+    src: node_exporter.service.j2
+    dest: /etc/systemd/system/node_exporter.service
     owner: root
     group: root
     mode: 0644
   notify:
-    - restart prometheus
+    - restart node_exporter
 #
 - name: Tell systemd about the new unit file
   systemd:
     daemon_reload: yes
 
-- name: Install SELinux dependencies
-  ansible.builtin.package:
-    name: "{{ item }}"
-    state: present
-  with_items: "{{ prometheus_selinux_packages }}"
-  register: _install_packages
-  until: _install_packages is succeeded
-  retries: 5
-  delay: 2
 
 # https://docs.ansible.com/ansible/latest/collections/community/general/seport_module.html
-- name: Allow prometheus to bind to port in SELinux
+- name: Allow node_exporter to bind to port in SELinux
   community.general.seport:
-    ports: "{{ prometheus_web_listen_address.split(':')[1] }}"
+    ports: 9100
     proto: tcp
     setype: http_port_t
     state: present

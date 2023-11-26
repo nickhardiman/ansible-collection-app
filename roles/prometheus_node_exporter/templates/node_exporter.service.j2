@@ -1,0 +1,22 @@
+{{ ansible_managed | comment }}
+# /etc/systemd/system/prometheus.service
+# https://janakiev.com/blog/prometheus-setup-systemd/
+# https://github.com/cloudalchemy/ansible-prometheus/blob/master/templates/prometheus.service.j2
+# Take care with directory ownership and permissions.
+# These two settings limit what can be read and written.
+#   ProtectSystem=strict
+#   User=prometheus
+
+[Unit]
+Description=Prometheus Node Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=node_exporter
+Group=node_exporter
+Type=simple
+ExecStart="{{ node_exporter_exec_dir }}"/node_exporter
+
+[Install]
+WantedBy=multi-user.target

@@ -1,12 +1,13 @@
 ---
 # defaults file
 
-https://github.com/prometheus/node_exporter/releases/download/v1.7.0/node_exporter-1.7.0.linux-amd64.tar.gz
 
 # download 
 # from
 # these values can be found here. 
 # https://prometheus.io/download/#node_exporter
+# That page links to files like this.
+# https://github.com/prometheus/node_exporter/releases/download/v1.7.0/node_exporter-1.7.0.linux-amd64.tar.gz
 install_version: "1.7.0"
 archive_dir: "node_exporter-{{ install_version }}.linux-amd64"
 install_file: "{{ archive_dir }}.tar.gz"

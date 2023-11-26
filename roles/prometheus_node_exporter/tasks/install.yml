@@ -26,6 +26,7 @@
 - name: Copy executables
   ansible.builtin.copy:
     src: "{{ download_dir }}/{{ archive_dir }}/{{ item }}"
+    remote_src: true
     dest: "{{ node_exporter_exec_dir }}/{{ item }}"
     mode: "0755"
     owner: root

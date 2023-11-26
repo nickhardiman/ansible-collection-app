@@ -37,3 +37,23 @@ scrape_configs:
     basic_auth:
       username: admin
       password: 'Password;1'
+
+# automation metrics provided by Ansible Automation Platform 
+# Requires a read token. 
+# Create one at https://your-aap-controller.example.com/#/users/1/tokens
+# This one talks encrypted HTTPS.
+#   - job_name: 'aap'
+#     metrics_path: /api/v2/metrics
+#     scrape_interval: 30s
+#     scheme: https
+#     bearer_token: AHb2dSGjwuFw8JvhMHSeFBtZq15yYn
+#     static_configs:
+#       - targets:
+#         - your-aap-controller.example.com
+
+# hardware and kernel metrics provided by node_exporter
+# This one talks plain HTTP.
+#   - job_name: 'myhost_example_com'
+#     static_configs:
+#       - targets:
+#         - myhost.example.com:9100

@@ -25,6 +25,7 @@
 - name: Copy executables
   ansible.builtin.copy:
     src: "{{ download_dir }}/{{ archive_dir }}/{{ item }}"
+    remote_src: true
     dest: "{{ prometheus_exec_dir }}/{{ item }}"
     mode: "0755"
     owner: root
@@ -38,6 +39,7 @@
 - name: Copy console templates
   ansible.builtin.copy:
     src: "{{ download_dir }}/{{ archive_dir }}/{{ item }}/"
+    remote_src: true
     dest: "{{ prometheus_config_dir }}/{{ item }}/"
     mode: "0644"
     owner: root
