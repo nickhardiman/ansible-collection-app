@@ -1,13 +1,6 @@
 ---
 # tasks file
 
-# A simpler version of
-# https://github.com/cloudalchemy/ansible-prometheus/blob/master/tasks/install.yml
-
-# A fancier version of 
-# https://prometheus.io/docs/prometheus/latest/getting_started/#downloading-and-running-prometheus
-
-
 - name: "Download prometheus from {{ install_file_source }} to {{ download_dir }}/{{ install_file }}"
   ansible.builtin.get_url:
     url: "{{ install_file_source }}"
@@ -94,7 +87,6 @@
     - restart prometheus
 
 
-# systemd
 - name: "Start the daemon"
   ansible.builtin.systemd:
     name: prometheus
