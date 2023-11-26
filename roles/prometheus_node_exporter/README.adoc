@@ -1,6 +1,4 @@
-= nick.app.install_gitlab
+= nick.app.prometheus_node_exporter
 
-
-My simplified version of the far superior 
-https://github.com/cloudalchemy/ansible-prometheus/blob/master/tasks/install.yml
-
+My installer, a simplified version of the far superior 
+https://github.com/prometheus-community/ansible/blob/main/roles/node_exporter/tasks/install.yml
