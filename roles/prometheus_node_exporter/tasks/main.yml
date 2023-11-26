@@ -1,0 +1,6 @@
+# A version of
+# https://www.ansible.com/blog/red-hat-ansible-tower-monitoring-using-prometheus-node-exporter-grafana
+# https://github.com/redhat-cop/tower_grafana_dashboards 
+
+- include_tasks: system.yml
+- include_tasks: install.yml

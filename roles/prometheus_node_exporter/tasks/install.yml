@@ -1,0 +1,54 @@
+---
+# tasks file
+
+
+- name: "Download node_exporter from {{ install_file_source }} to {{ download_dir }}/{{ install_file }}"
+  ansible.builtin.get_url:
+    url: "{{ install_file_source }}"
+    dest: "{{ download_dir }}/{{ install_file }}"
+    checksum: "sha256:{{ sha256_checksum }}"
+  register: _download_archive
+  until: _download_archive is succeeded
+  retries: 5
+  delay: 2
+  check_mode: false
+
+
+- name: Unpack node_exporter installer archive
+  ansible.builtin.unarchive:
+    src: "{{ download_dir }}/{{ install_file }}"
+    remote_src: true
+    dest: "{{ download_dir }}"
+    creates: "{{ download_dir }}/{{ archive_dir }}/node_exporter"
+  check_mode: false
+
+
+- name: Copy executables
+  ansible.builtin.copy:
+    src: "{{ download_dir }}/{{ archive_dir }}/{{ item }}"
+    dest: "{{ node_exporter_exec_dir }}/{{ item }}"
+    mode: "0755"
+    owner: root
+    group: root
+  loop:
+    - node_exporter
+  notify:
+    - restart node_exporter
+
+
+# systemd
+- name: "Start the daemon"
+  ansible.builtin.systemd:
+    name: node_exporter
+    state: started
+    enabled: yes
+
+
+# disabled while testing
+# - name: Clean up
+#   ansible.builtin.file:
+#     path: "{{ item }}"
+#     state: absent
+#   loop:
+#   - "{{ download_dir }}/{{ archive_dir }}"
+#   - "{{ download_dir }}/{{ install_file }}"

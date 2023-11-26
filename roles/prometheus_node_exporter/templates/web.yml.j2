@@ -1,0 +1,19 @@
+# web.yml
+# https://prometheus.io/docs/prometheus/latest/configuration/https/
+# https://github.com/prometheus/prometheus/blob/release-2.48/documentation/examples/web-config.yml
+
+# TLS
+# Comment this section to run a plaintext web server
+tls_server_config:
+  cert_file: "{{ cert_file }}"
+  key_file: "{{ key_file }}"
+
+# Basic auth
+# Comment this section to allow all access
+# user: admin, password: Password;1
+# Usernames and passwords required to connect to Prometheus.
+# Passwords are hashed with bcrypt: https://github.com/prometheus/exporter-toolkit/blob/master/docs/web-configuration.md#about-bcrypt
+#   dnf install httpd-tools
+#   htpasswd -nBC 10 "" | tr -d ':\n'
+basic_auth_users:
+  admin: $2y$10$CaDcK.sye7azvX4McOwZFu/.AfHDHA5S1OPumgeL3.MuAs1Oeky.6

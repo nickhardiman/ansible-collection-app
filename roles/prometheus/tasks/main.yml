@@ -1,2 +1,8 @@
+# A simpler version of
+# https://github.com/cloudalchemy/ansible-prometheus/blob/master/tasks/install.yml
+
+# A fancier version of 
+# https://prometheus.io/docs/prometheus/latest/getting_started/#downloading-and-running-prometheus
+
 - include_tasks: system.yml
 - include_tasks: install.yml

@@ -1,0 +1,6 @@
+= nick.app.install_gitlab
+
+
+My simplified version of the far superior 
+https://github.com/cloudalchemy/ansible-prometheus/blob/master/tasks/install.yml
+
