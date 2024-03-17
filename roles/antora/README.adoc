@@ -1,0 +1,168 @@
+= antora_generator
+
+An 
+https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse_roles.html[Ansible role] 
+for setting up the 
+https://antora.org/[Antora] 
+site generator.
+It installs 
+https://github.com/nvm-sh/nvm[NVM (Node Version Manager)],
+then
+https://nodejs.org/en[Node],
+then Antora itself. 
+Antora is installed in ~/.nvm/ and path settings added to ~/.bashrc.
+
+If you can read Ansible's YAML, start with   
+https://github.com/nickhardiman/ansible-role-antora-generator/blob/main/tasks/main.yml[main.yml]. 
+
+Early days, needs work. 
+Like all my spare-time repos, I develop code to the point it 
+https://hardiman.consulting/rhel/9/index.html[works for me], get distracted and don't finish the job. 
+
+
+== Requirements
+
+The role installs git and tar using yum. 
+That's the package manager for Fedora and RHEL OS.
+
+Root privilege escalation (sudo) is used, but only for installing these packages. 
+
+The role expects to place content in directory /var/www/(host)/. 
+Role 
+https://github.com/nickhardiman/ansible-role-web-server[ansible-role-web-server]
+takes care of this, along with other web server tasks. 
+
+
+== Role Variables
+
+A few 
+https://github.com/nickhardiman/ansible-role-antora-generator/blob/main/defaults/main.yml[default variables]
+are set up.
+
+Version numbers are scattered through the tasks, instead of in the defaults file. 
+Oops. 
+
+
+== Dependencies
+
+None. 
+Tasks only use the ansible.builtin collection. 
+But you probably want to run 
+https://github.com/nickhardiman/ansible-role-web-server[ansible-role-web-server]
+first. 
+
+
+== set up the generator
+
+This playbook carries out these steps. 
+
+* Install some packages. 
+* Create an Apache virtual host.
+* Install Antora in ~/.nvm/.
+* Download source code to the home directory.
+* Put the generated web site in Apache's docroot. 
+
+Save this as something like playbook-ansible-generator.yml
+
+[source,yaml]
+....
+---
+- hosts: my-host.lab.example.com
+  roles:
+     - role: ansible-role-web-server
+     - role: ansible-role-antora-generator
+....
+
+
+=== install and configure 
+
+Copy and paste each command.
+Or stick it all in a bash script file. 
+
+[source,shell]
+....
+HOST=my-host.lab.example.com
+# Install packages.
+sudo dnf install ansible git vim
+#
+# Create playbook, inventory and privilege escalation password files.
+# Stick everything in a new folder. 
+mkdir playbook-for-$HOST
+cd playbook-for-$HOST
+echo "
+---
+- hosts: $HOST
+  roles:
+     - role: ansible-role-web-server
+     - role: ansible-role-antora-generator
+" > playbook-ansible-generator.yml
+echo $HOST > inventory
+# Storing your password this way is quick and dirty (it's insecure).
+echo 'my password' > ./my-pass
+chmod 400 ./my-pass
+#
+# Download roles to a new "roles" subdirectory.
+ansible-galaxy role install git+https://github.com/nickhardiman/ansible-role-web-server.git --roles-path roles
+ansible-galaxy role install git+https://github.com/nickhardiman/ansible-role-antora-generator.git --roles-path roles
+....
+
+
+=== run, the ansible-playbook way
+
+Run this playbook as a regular user. 
+
+[source,shell]
+....
+# run
+FQDN=my-server.lab.example.com
+ansible-playbook  playbook-ansible-generator.yml \
+  --become-password-file=./my-pass   \
+  --inventory=./inventory \
+  --extra-vars="apache_host=$FQDN"
+....
+
+
+=== run, the ansible-navigator way
+
+The new 
+https://ansible-navigator.readthedocs.io/[ansible content navigator] 
+uses containers to do its work. 
+Container components are available as RPM packages, but ansible-navigator is not. 
+https://github.com/ansible/ansible-navigator/blob/main/docs/installation.md[Install] Python packages. 
+
+Install and configure more stuff. 
+
+[source,shell]
+....
+# install container tools
+sudo dnf install podman 
+# this better?
+#sudo dnf group install 'Container Management'
+#
+# install a Python 3 development environment
+sudo dnf install python3-pip gcc python3-devel oniguruma-devel
+sudo python3 -m pip install wheel
+# install ansible-navigator in /usr/local/bin/ (bit messy)
+sudo python3 -m pip install ansible-navigator
+....
+
+Run this playbook as a regular user. 
+
+[source,shell]
+....
+# run
+ansible-navigator run playbook-ansible-generator.yml  \
+  --become-password-file=./my-pass \
+  --mode=stdout \
+  --inventory=./inventory \
+  --user=$USER
+....
+
+
+== License
+
+MIT
+
+== Author Information
+
+Nick. I'm not interesting. 

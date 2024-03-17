@@ -1,0 +1,6 @@
+[allowlist]
+  description = "Allowlist"
+  files = [
+    '''files/virtualhost.key''',
+  ]
+

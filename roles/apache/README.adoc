@@ -1,0 +1,206 @@
+= web_server
+
+An 
+https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse_roles.html[Ansible role] 
+for setting up the Apache web server. 
+It installs the httpd package 
+then configures a vhost.
+
+Early days, needs work. 
+Like all my spare-time repos, I develop code to the point it 
+https://hardiman.consulting/rhel/9/index.html[works for me], get distracted and don't finish the job. 
+
+
+== server certificate and key examples
+
+The files directory holds a server certificate and key.
+This web server cert and private key are provided as an example. Only use them to get up and moving, because they provide no security. 
+
+* The key is in the public domain. 
+* The certificate is self-signed and untrusted, so web browsers will complain.
+
+If you want to play with cert creation on the command line, try this. 
+```
+# a new home for our new files
+HOST=my-host.lab.example.com
+mkdir cert-for-$HOST
+cd cert-for-$HOST/
+#
+# pass phrase, public and private key pair, and 
+# CSR (Certificate Signing Request)
+# Create a password or pass phrase and store it. 
+# This is useful for protecting the private key file. 
+echo 'My Password' > my-passphrase.txt
+# create a new keypair and a cert request, and store in two new files.
+# my-host.lab.example.com.csr contains the CSR, which includes the public key.
+# privkey.pem is the private key, encrypted using the pass phrase.
+openssl req \
+  -new \
+  -passout file:my-passphrase.txt   \
+  -out $HOST.csr  \
+  -keyout $HOST-encrypted.privkey \
+  -subj "/C=UK/ST=The Shire/L=Hobbiton/O=Hairy foot scrapers/OU=complaints department/CN=$HOST"
+# check your work
+head $HOST-encrypted.privkey 
+#
+# self-signed certificate
+# Create a new cert and store it. 
+openssl x509 \
+  -req -in $HOST.csr \
+  -out $HOST.crt \
+  -key $HOST-encrypted.privkey \
+  -passin file:my-passphrase.txt \
+  -days 90
+# check your work 
+# The Issuer: and Subject: fields are the same. 
+# The Not After : field is 90 days in the future. 
+openssl x509 -in my-host.lab.example.com.crt -text -noout
+#
+# plain text private key and role files
+# The role uses a plain text key, not a password-protected key. 
+# create a plain text private key file. 
+openssl rsa  -in $HOST-encrypted.privkey -out $HOST.privkey -passin file:my-passphrase.txt
+# copy new plain text private key and cert files to the 
+# ansible-role-web-server/files/ directory, replacing 
+# virtualhost.key and virtualhost.crt  
+```
+
+
+== Requirements
+
+The role installs RPM packages using yum. 
+That's the package manager for Fedora and RHEL OS.
+
+Root privilege escalation (sudo) is used
+
+
+== Role Variables
+
+A few 
+https://github.com/nickhardiman/ansible-role-web-server/blob/main/defaults/main.yml[default variables]
+are set up.
+
+
+== Dependencies
+
+None.
+Tasks only use the ansible.builtin collection. 
+
+
+== set up the generator
+
+This playbook carries out these steps. 
+
+* Install some packages. 
+* Create an Apache virtual host.
+* Install Antora in ~/.nvm/.
+* Download source code to the home directory.
+* Put the generated web site in Apache's docroot. 
+
+Save this as something like playbook-ansible-generator.yml
+
+[source,yaml]
+....
+---
+- hosts: my-host.lab.example.com
+  roles:
+     - role: ansible-role-web-server
+....
+
+Run this playbook as a regular user. 
+
+
+=== install and configure 
+
+Copy and paste each command.
+Or stick it all in a bash script file. 
+
+[source,shell]
+....
+HOST=my-host.lab.example.com
+# Install packages.
+sudo dnf install ansible git vim
+#
+# Create playbook, inventory and privilege escalation password files.
+# Stick everything in a new folder. 
+mkdir playbook-for-$HOST
+cd playbook-for-$HOST
+echo "
+---
+- hosts: $HOST
+  roles:
+     - role: ansible-role-web-server
+" > playbook-ansible-generator.yml
+echo $HOST > inventory
+# Storing your password this way is quick and dirty (it's insecure).
+echo 'my password' > ./my-pass
+chmod 400 ./my-pass
+#
+# Download roles to a new "roles" subdirectory.
+ansible-galaxy role install git+https://github.com/nickhardiman/ansible-role-web-server.git --roles-path roles
+....
+
+
+=== run, the ansible-playbook way
+
+Run this playbook as a regular user. 
+
+[source,shell]
+....
+# run
+FQDN=my-server.lab.example.com
+ansible-playbook  playbook-ansible-generator.yml \
+  --become-password-file=./my-pass   \
+  --inventory=./inventory \
+  --extra-vars="apache_host=$FQDN"
+....
+
+
+=== run, the ansible-navigator way
+
+The new 
+https://ansible-navigator.readthedocs.io/[ansible content navigator] 
+uses containers to do its work. 
+Container components are available as RPM packages, but ansible-navigator is not. 
+https://github.com/ansible/ansible-navigator/blob/main/docs/installation.md[Install] Python packages. 
+
+Install and configure more stuff. 
+
+[source,shell]
+....
+# install container tools
+sudo dnf install podman 
+# this better?
+#sudo dnf group install 'Container Management'
+#
+# install a Python 3 development environment
+sudo dnf install python3-pip gcc python3-devel oniguruma-devel
+sudo python3 -m pip install wheel
+# install ansible-navigator in /usr/local/bin/ (bit messy)
+sudo python3 -m pip install ansible-navigator
+....
+
+Run this playbook as a regular user. 
+This downloads the execution environment container 
+https://github.com/ansible/creator-ee/pkgs/container/creator-ee[creator-ee].
+
+[source,shell]
+....
+# run
+FQDN=my-server.lab.example.com
+ansible-navigator run playbook-ansible-generator.yml  \
+  --become-password-file=./my-pass \
+  --mode=stdout \
+  --inventory=./inventory \
+  --user=$USER  \
+  --extra-vars="apache_host=$FQDN"
+
+....
+
+== License
+
+MIT
+
+== Author Information
+
+Nick. I'm not interesting. 

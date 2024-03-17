@@ -1,0 +1,26 @@
+---
+# tasks file for antora_generator
+#
+- name: install required packages
+  yum: 
+    name: 
+    - git
+    - httpd
+    - tar
+    state: latest 
+  become: yes
+  
+- include_tasks: nvm.yml
+- include_tasks: node.yml
+- include_tasks: antora.yml
+- include_tasks: content.yml
+
+- name: generate website content
+  ansible.builtin.shell:
+    cmd: antora antora-playbook.yml 
+  args:
+    chdir: "$HOME/docs-site"
+  register: r_antora
+  changed_when: yes
+- ansible.builtin.debug:
+    var: r_antora

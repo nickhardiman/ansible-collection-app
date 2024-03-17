@@ -1,0 +1,18 @@
+<VirtualHost *:443>
+  ServerAdmin           webmaster@{{ apache_host }}
+  ServerName            {{ apache_host }}:443
+  ServerAlias           www.{{ apache_host }}
+  DocumentRoot          /var/www/{{ apache_host }}
+  ErrorLog              logs/{{ apache_host }}-ssl_error_log
+  CustomLog logs/ssl_request_log \
+            "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+  TransferLog           logs/{{ apache_host }}-ssl-access.log
+  LogLevel              warn
+  SSLEngine             on
+  SSLHonorCipherOrder   on
+  SSLCipherSuite        PROFILE=SYSTEM
+  SSLProxyCipherSuite   PROFILE=SYSTEM
+  SSLCertificateFile    /etc/pki/tls/certs/{{ apache_host }}.crt
+  SSLCertificateKeyFile /etc/pki/tls/private/{{ apache_host }}.key
+</VirtualHost>
+

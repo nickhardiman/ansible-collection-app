@@ -1,0 +1,9 @@
+---
+# apache 
+apache_user: root
+apache_group: nick
+apache_host: lab.example.com
+#apache_config_file: "{{ apache_host }}.conf"
+apache_port: "80"
+#apache_fw_service: http
+

@@ -1,0 +1,8 @@
+# to do 
+# multiple virtualhosts, TLS and certificates
+---
+# tasks file for antora_generator
+#
+- block:
+  - include_tasks: apache.yml
+  become: yes

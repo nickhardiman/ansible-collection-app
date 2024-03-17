@@ -1,0 +1,10 @@
+---
+# defaults file for antora-generator
+
+# node
+nvm_installed: no
+node_installed: no
+antora_installed: no
+
+apache_host: lab.example.com
+user_admin_name: nick

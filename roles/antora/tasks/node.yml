@@ -1,0 +1,30 @@
+# Use Node Version Manager (https://github.com/nvm-sh/nvm) to
+# install Node (https://nodejs.org/en).
+# For an explanation of command alternatives, see nvm.yml
+---
+- name: is node already installed?
+  ansible.builtin.shell: 
+    cmd: source ~/.bashrc && node -v
+    #cmd: node -v
+    #cmd: bash -i -c 'node -v'
+  register: r_node
+  ignore_errors: yes
+  changed_when: no
+
+- set_fact:
+    node_installed: yes
+  when: r_node.rc == 0
+
+- debug:
+    var: node_installed
+
+- name: Install node
+  ansible.builtin.shell:
+    cmd: source ~/.bashrc && nvm install --lts
+    #cmd: nvm install --lts
+    #cmd: bash -i -l -c 'nvm install --lts'
+  args:
+    chdir: "$HOME"
+    creates: "$HOME/.nvm/versions/node"
+  when: not node_installed
+  changed_when: yes

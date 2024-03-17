@@ -1,0 +1,62 @@
+---
+# use Node Package Manager (https://www.npmjs.com) to 
+# install Antora (https://docs.antora.org/antora/latest/install-and-run-quickstart/)
+# For an explanation of command alternatives, see nvm.yml
+#
+# npm command alternatives
+# 
+# This version
+#    npm install @antora/cli
+# places files in node_modules, eg. 
+#    ./node_modules/@antora/cli
+# This version 
+#    npm i -g @antora/cli
+# places files in $npm_config_prefix/lib/node_modules, eg. 
+#    ~/.nvm/versions/node/v18.16.0/lib/node_modules/@antora/cli
+# this version 
+#    npm i -g @antora/cli@3.0.0
+# installs an older version.
+
+- name: is antora already installed?
+  ansible.builtin.shell: 
+    cmd: source ~/.bashrc && antora -v
+    #cmd: antora -v
+    #cmd: bash -i -c 'antora -v'
+  register: r_check_antora
+  ignore_errors: yes
+  changed_when: no
+
+- set_fact:
+    antora_installed: yes
+  when: r_check_antora.rc == 0
+
+- debug:
+    var: antora_installed
+
+- name: Create a working directory
+  ansible.builtin.file:
+    path: ~/docs-site/build
+    state: directory
+
+# only required if antora's modules are stored here using 'npm i -D -E ...' 
+- name: Create a JSON file
+  ansible.builtin.copy:
+    content: '{}'
+    dest: ~/docs-site/package.json
+
+# todo
+# Not using "creates" yet because this path has a hardcoded version.
+# Make this version a variable.
+- name: Install antora
+  ansible.builtin.shell:
+    cmd: source ~/.bashrc && npm i -g @antora/cli @antora/site-generator @antora/lunr-extension
+  args:
+    chdir: "$HOME/docs-site"
+    #creates: "$HOME/.nvm/versions/node/v16.14.2/lib/node_modules/@antora"
+  register: r_npm_antora
+  when: not antora_installed
+  changed_when: yes
+
+- debug:
+    #verbosity: 1
+    var: r_npm_antora
