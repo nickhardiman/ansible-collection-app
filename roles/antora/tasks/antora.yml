@@ -57,6 +57,8 @@
   when: not antora_installed
   changed_when: yes
 
+# !!! check with 
+#   npx antora -v
 - debug:
     #verbosity: 1
     var: r_npm_antora

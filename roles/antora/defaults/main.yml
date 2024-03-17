@@ -3,8 +3,10 @@
 
 # node
 nvm_installed: no
+nvm_tag: v0.39.7
+
 node_installed: no
 antora_installed: no
 
-apache_host: lab.example.com
+apache_host: "{{ inventory_hostname }}"
 user_admin_name: nick

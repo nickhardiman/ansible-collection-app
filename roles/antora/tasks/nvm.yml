@@ -41,9 +41,9 @@
 - debug:
     var: nvm_installed
 
+# see
+# https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script
 - name: Install nvm
-  vars:
-    nvm_tag: v0.39.1
   ansible.builtin.shell: >
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/{{ nvm_tag }}/install.sh | bash
   args:
