@@ -12,7 +12,7 @@
   SSLHonorCipherOrder   on
   SSLCipherSuite        PROFILE=SYSTEM
   SSLProxyCipherSuite   PROFILE=SYSTEM
-  SSLCertificateFile    /etc/pki/tls/certs/{{ apache_host }}.crt
+  SSLCertificateFile    /etc/pki/tls/certs/{{ apache_host }}.pem
   SSLCertificateKeyFile /etc/pki/tls/private/{{ apache_host }}.key
 </VirtualHost>
 

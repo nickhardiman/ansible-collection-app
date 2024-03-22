@@ -42,18 +42,21 @@
   template:
     src: virtualhost.ssl.conf.j2
     dest: "/etc/httpd/conf.d/{{ apache_host }}.ssl.conf"
+  # notify: Restart Apache
   notify: Reload Apache
 
 - name: add the server certificate containing the public key
   ansible.builtin.copy: 
     src: virtualhost.crt
-    dest: "/etc/pki/tls/certs/{{ apache_host }}.crt"
+    dest: "/etc/pki/tls/certs/{{ apache_host }}.pem"
+  when: use_my_cert
 
 - name: add the matching private key
   ansible.builtin.copy: 
     src: virtualhost.key
     dest: "/etc/pki/tls/private/{{ apache_host }}.key"
     mode: 0640
+  when: use_my_cert
 
 # use /etc/pki/ca-trust/ and update-ca-trust?
 

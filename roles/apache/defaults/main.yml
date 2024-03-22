@@ -1,9 +1,10 @@
 ---
 # apache 
 apache_user: root
-apache_group: nick
+apache_group: root
 # apache_host: lab.example.com
 apache_host: "{{ inventory_hostname }}"
 # apache_config_file: "{{ apache_host }}.conf"
 apache_port: "80"
 # apache_fw_service: http
+use_my_cert: false

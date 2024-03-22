@@ -1,8 +1,8 @@
-# to do 
+# to do
 # multiple virtualhosts, TLS and certificates
 ---
 # tasks file for antora_generator
 #
-- block:
-  - include_tasks: apache.yml
-  become: yes
+- become: true
+  block:
+    - ansible.builtin.include_tasks: apache.yml

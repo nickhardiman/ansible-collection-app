@@ -3,24 +3,24 @@
 # https://github.com/nvm-sh/nvm
 # nvm is a function, not an executable file.
 # It is created using commands in a resource file ~/.bashrc.
-# Shell must read the .bashrc file before running the command 
+# Shell must read the .bashrc file before running the command
 #
 # command alternatives
-# 
+#
 # start an interactive shell
 # Tell bash to be interactive (-i) and run the command (-c).
 #
 # source ~/.bashrc && nvm -v
-# Fine, as long as there is no check for non-interactive and exit. 
+# Fine, as long as there is no check for non-interactive and exit.
 #
 # use become_flags
-# There may be some luck to be had with "become_flags", 
-# but -i, -c and -l mean different things to sudo. 
-# 
+# There may be some luck to be had with "become_flags",
+# but -i, -c and -l mean different things to sudo.
+#
 # copy NVM's settings to .bash_profile
-# pointless, .bash_profile sources .bashrc. 
+# pointless, .bash_profile sources .bashrc.
 # Use a login shell (-l), which tells bash to read .bash_profile.
-# 
+#
 # copy NVM's settings to Ansible tasks
 # Set up the environment then run commands without fuss.
 #
@@ -31,14 +31,16 @@
   ansible.builtin.shell: 
     cmd: bash -i -c 'nvm -v'
   register: r_nvm
-  ignore_errors: yes
+  ignore_errors: true
   changed_when: no
 
-- set_fact:
-    nvm_installed: yes
+- name: Set boolean
+  ansible.builtin.set_fact:
+    nvm_installed: true
   when: r_nvm.rc == 0
 
-- debug:
+- name: Display result
+  ansible.builtin.debug:
     var: nvm_installed
 
 # see
@@ -51,4 +53,4 @@
     chdir: "$HOME"
     creates: "$HOME/.nvm/nvm.sh"
   when: not nvm_installed
-  changed_when: yes
+  changed_when: true

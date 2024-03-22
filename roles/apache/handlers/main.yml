@@ -1,12 +1,14 @@
 ---
-#
-- name: Reload Apache       
-  service:        
+# handlers do not inherit the "become" in main.yml
+
+- name: Reload Apache
+  ansible.builtin.systemd_service:
     name: httpd
     state: reloaded
-    
-- name: Restart Apache
-  service:        
-    name: httpd 
-    state: restarted
+  become: true
 
+- name: Restart Apache
+  ansible.builtin.systemd_service:
+    name: httpd
+    state: restarted
+  become: true

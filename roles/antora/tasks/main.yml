@@ -1,26 +1,38 @@
 ---
 # tasks file for antora_generator
 #
-- name: install required packages
-  yum: 
-    name: 
-    - git
-    - httpd
-    - tar
-    state: latest 
-  become: yes
-  
-- include_tasks: nvm.yml
-- include_tasks: node.yml
-- include_tasks: antora.yml
-- include_tasks: content.yml
+- name: Who am I
+  ansible.builtin.debug:
+    verbosity: 1
+    var: ansible_facts['user_id']
 
-- name: generate website content
+- name: Install required packages
+  ansible.builtin.yum:
+    name:
+      - git
+      - httpd
+      - tar
+    state: latest
+  become: true
+
+- name: Install nvm
+  ansible.builtin.include_tasks: nvm.yml
+- name: Install node
+  ansible.builtin.include_tasks: node.yml
+- name: Install antora
+  ansible.builtin.include_tasks: antora.yml
+- name: Turn asciidoctor into HTML
+  ansible.builtin.include_tasks: content.yml
+
+- name: Generate website content
   ansible.builtin.shell:
-    cmd: antora antora-playbook.yml 
+    cmd: antora antora-playbook.yml
   args:
-    chdir: "$HOME/docs-site"
+    chdir: "~/docs-site"
   register: r_antora
-  changed_when: yes
-- ansible.builtin.debug:
+  changed_when: true
+
+- name: Display result
+  ansible.builtin.debug:
+    verbosity: 1
     var: r_antora
