@@ -1,0 +1,39 @@
+---
+# update website content
+
+# GitHub
+# a missing repo causes a long hang
+- name: Update local developer copies of my content
+  ansible.builtin.git:
+    repo:  "https://github.com/nickhardiman/{{ item }}"
+    dest: "~/{{ item }}"
+  loop:
+  - docs-site
+  - articles-ansible
+  - articles-aap
+  - articles-fedora-rpi4
+  - articles-ocp4
+  - articles-rhel8
+  - articles-rhel9
+  - articles-satellite6
+
+# Gitlab
+- name: Update local developer copies of my content
+  ansible.builtin.git:
+    repo:  "https://gitlab.com/nhardima/{{ item }}"
+    dest: "~/{{ item }}"
+  loop:
+  - antora-ui-default
+
+- name: Generate website content
+  ansible.builtin.shell:
+    cmd: antora antora-playbook.yml
+  args:
+    chdir: "~/docs-site"
+  register: r_antora
+  changed_when: true
+
+- name: Display result
+  ansible.builtin.debug:
+    verbosity: 1
+    var: r_antora

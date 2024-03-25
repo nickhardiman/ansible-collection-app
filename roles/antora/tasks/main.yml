@@ -22,17 +22,5 @@
 - name: Install antora
   ansible.builtin.include_tasks: antora.yml
 - name: Turn asciidoctor into HTML
-  ansible.builtin.include_tasks: content.yml
+  ansible.builtin.include_tasks: content-initial.yml
 
-- name: Generate website content
-  ansible.builtin.shell:
-    cmd: antora antora-playbook.yml
-  args:
-    chdir: "~/docs-site"
-  register: r_antora
-  changed_when: true
-
-- name: Display result
-  ansible.builtin.debug:
-    verbosity: 1
-    var: r_antora
