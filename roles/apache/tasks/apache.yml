@@ -2,14 +2,14 @@
 # adds one virtualhost
 # change to handle a list?
 #
-- name: install packages
-  yum: 
+- name: Install packages
+  ansible.builtin.yum: 
     name: 
     - httpd
     - mod_ssl
     state: latest 
 
-- name: start and enable service httpd
+- name: Start and enable service httpd
   ansible.builtin.service:
     name: httpd
     enabled: yes
@@ -17,7 +17,7 @@
 
 # SELinux - this inherits file type "httpd_sys_content_t"
 - name: add another document root
-  file:
+  ansible.builtin.file:
     path: "/var/www/{{ apache_host }}"
     state: directory
     owner: "{{ apache_user }}"
@@ -25,7 +25,7 @@
     mode: '2775'
 
 - name: Copy index test page
-  template:
+  ansible.builtin.template:
     src: index.html.j2
     dest: "/var/www/{{ apache_host }}/index.html"
     owner: "{{ apache_user }}"
@@ -33,13 +33,13 @@
     mode: '0664'
 
 - name: add a plaintext Apache virtualHost
-  template:
+  ansible.builtin.template:
     src: virtualhost.conf.j2
     dest: "/etc/httpd/conf.d/{{ apache_host }}.conf"
   notify: Reload Apache
 
 - name: add an encrypted Apache virtualHost
-  template:
+  ansible.builtin.template:
     src: virtualhost.ssl.conf.j2
     dest: "/etc/httpd/conf.d/{{ apache_host }}.ssl.conf"
   # notify: Restart Apache
